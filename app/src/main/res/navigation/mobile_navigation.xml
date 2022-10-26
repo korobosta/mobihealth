@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@+id/nav_home">
+
+    <fragment
+        android:id="@+id/nav_home"
+        android:name="com.koros.mobihealthapp.ui.home.HomeFragment"
+        android:label="@string/menu_home"
+        tools:layout="@layout/fragment_home" />
+
+    <fragment
+        android:id="@+id/nav_foods"
+        android:name="com.koros.mobihealthapp.ui.foods.FoodsFragment"
+        android:label="@string/menu_foods"
+        tools:layout="@layout/fragment_foods" />
+
+    <fragment
+        android:id="@+id/nav_fitness"
+        android:name="com.koros.mobihealthapp.ui.fitness.FitnessFragment"
+        android:label="@string/menu_fitness"
+        tools:layout="@layout/fragment_fitness" />
+    <fragment
+        android:id="@+id/nav_diseases"
+        android:name="com.koros.mobihealthapp.ui.diseases.DiseasesFragment"
+        android:label="@string/menu_diseases"
+        tools:layout="@layout/fragment_diseases" />
+</navigation>
