@@ -11,9 +11,11 @@
 <div class="container text-center">
     <div>
         <form th:action="@{/logout}" method="post">
-            <p>
-                Welcome <b></b>
-            </p>
+            <div sec:authorize="isAuthenticated()"></div>
+                <p>
+                    Welcome <span sec:authentication="name"></span>
+                </p>
+            </div>
             <input type="submit" value="Sign Out" />
         </form>
     </div>
@@ -30,6 +32,7 @@
                     <th>Last Name</th>
                     <th>E-mail</th>
                     <th>Phone Number</th>
+                    <th>Action</th>
                 </tr>
             </thead>
             <tbody>
@@ -38,6 +41,8 @@
                     <td th:text="${user.lastName}">Last Name</td>
                     <td th:text="${user.email}">E-mail</td>
                     <td th:text="${user.phoneNumber}">Phone Number</td>
+                    <td><a th:href="@{/edit/{id}(id=${user.id})}">Edit</a></td>
+                    <td><a th:href="@{/delete/{id}(id=${user.id})}">Delete</a></td>
                 </tr>
             </tbody>
         </table>

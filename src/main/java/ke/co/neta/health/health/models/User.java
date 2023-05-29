@@ -40,6 +40,9 @@ public class User {
     public String getPassword(){
         return password;
     }
+    public long getId(){
+        return id;
+    }
 
     public void setFirstName(String firstName){
         this.firstName = firstName;
@@ -56,6 +59,8 @@ public class User {
 
     public void setPassword(String password){
         this.password = password;
+    }
+    public void setId(long id2) {
     }
 
 }
