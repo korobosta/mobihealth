@@ -1,8 +1,12 @@
 package ke.co.neta.health.health.controllers;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -11,8 +15,10 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
+import org.springframework.data.domain.Pageable;
 import ke.co.neta.health.health.controllers.auth.CustomUserDetailsService;
 import ke.co.neta.health.health.models.User;
 import ke.co.neta.health.health.repositories.UserRepository;
@@ -30,16 +36,44 @@ public class UserController {
     }
 
     @GetMapping("")
-    public String registerPage(){
+    public String indexPage(){
         return "index";
+    }
+
+    @GetMapping("/api/users")
+    @ResponseBody
+    public Map<String, Object> getUsers(@RequestParam(value = "start", defaultValue = "0") int start,@RequestParam(value = "length", defaultValue = "10") int length) {
+        int page = start / length;
+        Pageable pageable = PageRequest.of(page, length);
+        Page<User> userPage = userRepo.findAll(pageable);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("data", userPage.getContent());
+        response.put("recordsTotal", userPage.getTotalElements());
+        response.put("recordsFiltered", userPage.getTotalElements());
+
+        return response;
     }
 
     @GetMapping("/users")
     public String listUsers(Model model) {
-        List<User> listUsers = userRepo.findAll();
-        model.addAttribute("listUsers", listUsers);
+        // List<User> listUsers = userRepo.findAll();
+        // model.addAttribute("listUsers", listUsers);
         
-        return "users";
+        return "users/view_users";
+    }
+
+    @GetMapping("/dashboard")
+    public String dashboard(Model model) {
+        List<User> listUsers = userRepo.findAll();
+        long userCount =  userRepo.count();
+
+        model.addAttribute("listUsers", listUsers);
+        model.addAttribute("userCount",userCount);
+
+        
+        
+        return "index";
     }
 
     @GetMapping("/register")

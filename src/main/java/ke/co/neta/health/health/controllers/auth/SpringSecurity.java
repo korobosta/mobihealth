@@ -29,12 +29,12 @@ public class SpringSecurity {
         http.csrf().disable()
                 .authorizeHttpRequests((authorize) ->
                         authorize
-                                .requestMatchers("/users").authenticated()
-                                .anyRequest().permitAll()
+                        .requestMatchers("/login").permitAll()  // Allow access to the login page
+                        .anyRequest().authenticated() 
                 ).formLogin(
                         form -> form
                                 .usernameParameter("email")
-                                .defaultSuccessUrl("/users")
+                                .defaultSuccessUrl("/dashboard")
                                 .permitAll()
                 ).logout(
                         logout -> logout
