@@ -1,5 +1,10 @@
 package ke.co.neta.health.health.models;
 
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.SourceType;
+import org.hibernate.annotations.UpdateTimestamp;
+import java.time.LocalDateTime;
+
 import jakarta.persistence.*;
 
 @Entity
@@ -25,6 +30,12 @@ public class User {
     @Column(name = "password", length = 100)
     private String password;
 
+    @CreationTimestamp(source = SourceType.DB)
+    private LocalDateTime createdAt;
+
+    @UpdateTimestamp(source = SourceType.DB)
+    private LocalDateTime updatedAt;
+
     public String getFirstName(){
         return firstName;
     }
@@ -44,6 +55,14 @@ public class User {
         return id;
     }
 
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
     public void setFirstName(String firstName){
         this.firstName = firstName;
     }
@@ -60,7 +79,16 @@ public class User {
     public void setPassword(String password){
         this.password = password;
     }
-    public void setId(long id2) {
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
     }
 
 }

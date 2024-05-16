@@ -70,9 +70,6 @@ public class UserController {
 
         model.addAttribute("listUsers", listUsers);
         model.addAttribute("userCount",userCount);
-
-        
-        
         return "index";
     }
 
@@ -81,6 +78,45 @@ public class UserController {
         model.addAttribute("user", new User());
         
         return "signup_form";
+    }
+
+    @GetMapping("/users/add")
+    public String addUserForm(Model model) {
+        model.addAttribute("user", new User());
+        return "users/add_user";
+    }
+
+    @PostMapping("/users/add")
+    public String addUser(User user,BindingResult result,Model model, RedirectAttributes redirectAttributes) {
+
+        User existingUser = null;
+
+        existingUser = userService.getUserByEmail(user.getEmail());
+        if(existingUser != null){
+            result.rejectValue("email", null,
+                    "There is already an account registered with the same email");
+        }
+
+        existingUser = userService.getUserByPhoneNumber(user.getPhoneNumber());
+        if(existingUser != null){
+            result.rejectValue("phoneNumber", null,
+                    "There is already an account registered with the same phone number");
+        }
+
+        if(result.hasErrors()){
+            model.addAttribute("user", user);
+            return "users/add_user";
+        }
+        
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        String encodedPassword = passwordEncoder.encode(user.getPassword());
+        user.setPassword(encodedPassword);
+        
+        userRepo.save(user);
+
+        redirectAttributes.addFlashAttribute("message", "Registration was successful");
+        
+        return "redirect:/users";
     }
 
     @PostMapping("/process_register")
@@ -116,21 +152,29 @@ public class UserController {
         return "register_success";
     }
 
-    @GetMapping("/edit/{id}")
+    @GetMapping("/users/edit/{id}")
     public String showUpdateForm(@PathVariable("id") long id, Model model) {
         User user = userRepo.findById(id)
         .orElseThrow(() -> new IllegalArgumentException("Invalid user Id:" + id));
         
         model.addAttribute("user", user);
-        return "edit_user";
+        return "users/edit_user";
+    }
+
+    @GetMapping("/users/{id}")
+    public String viewUser(@PathVariable("id") long id, Model model) {
+        User user = userRepo.findById(id)
+        .orElseThrow(() -> new IllegalArgumentException("Invalid user Id:" + id));
+        
+        model.addAttribute("user", user);
+        return "users/view_user";
     }
 
     @PostMapping("/update/{id}")
-    public String updateUser(@PathVariable("id") long id, @Validated User user, 
-    BindingResult result, Model model) {
+    public String updateUser(@PathVariable("id") long id, @Validated User user, BindingResult result, Model model) {
         if (result.hasErrors()) {
             user.setId(id);
-            return "edit_user";
+            return "users/edit_user";
         }
 
         User dbUser = userRepo.findById(id)
@@ -153,7 +197,7 @@ public class UserController {
         return "redirect:/users";
     }
         
-    @GetMapping("/delete/{id}")
+    @GetMapping("/users/delete/{id}")
     public String deleteUser(@PathVariable("id") long id, Model model) {
         User user = userRepo.findById(id)
         .orElseThrow(() -> new IllegalArgumentException("Invalid user Id:" + id));
