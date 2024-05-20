@@ -4,6 +4,9 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.SourceType;
 import org.hibernate.annotations.UpdateTimestamp;
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
+
 import jakarta.persistence.*;
 
 @Entity
@@ -16,6 +19,9 @@ public class Role {
 
     @Column(name = "name",nullable = false, length = 50)
     private String roleName;
+
+    @OneToMany(mappedBy = "role", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<UserRole> userRoles = new HashSet<>();
 
     @CreationTimestamp(source = SourceType.DB)
     private LocalDateTime createdAt;
@@ -53,5 +59,13 @@ public class Role {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Set<UserRole> getUserRoles() {
+        return userRoles;
+    }
+
+    public void setUserRoles(Set<UserRole> userRoles) {
+        this.userRoles = userRoles;
     }
 }

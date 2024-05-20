@@ -3,14 +3,16 @@ package ke.co.neta.health.health.models;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.SourceType;
 import org.hibernate.annotations.UpdateTimestamp;
+
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 import jakarta.persistence.*;
 
 @Entity
 @Table(name = "users")
 public class User {
-
     @Id
     @GeneratedValue(strategy =  GenerationType.IDENTITY)
     private long id;
@@ -29,6 +31,25 @@ public class User {
 
     @Column(name = "password", length = 100)
     private String password;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<UserRole> userRoles = new HashSet<>();
+
+    // Getters and setters
+
+    public void addRole(Role role) {
+        UserRole userRole = new UserRole(this, role);
+        userRoles.add(userRole);
+        role.getUserRoles().add(userRole);
+    }
+
+    public void removeRole(Role role) {
+        UserRole userRole = new UserRole(this, role);
+        role.getUserRoles().remove(userRole);
+        userRoles.remove(userRole);
+        userRole.setUser(null);
+        userRole.setRole(null);
+    }
 
     @CreationTimestamp(source = SourceType.DB)
     private LocalDateTime createdAt;
@@ -90,5 +111,4 @@ public class User {
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
-
 }

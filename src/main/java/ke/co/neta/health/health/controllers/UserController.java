@@ -1,5 +1,6 @@
 package ke.co.neta.health.health.controllers;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,8 +20,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
+
 import ke.co.neta.health.health.controllers.auth.CustomUserDetailsService;
+import ke.co.neta.health.health.models.Feedback;
+import ke.co.neta.health.health.models.Role;
 import ke.co.neta.health.health.models.User;
+import ke.co.neta.health.health.repositories.RoleRepository;
 import ke.co.neta.health.health.repositories.UserRepository;
 
 @Controller
@@ -28,6 +34,7 @@ public class UserController {
 
     @Autowired
     private UserRepository userRepo;
+    private RoleRepository roleRepository;
 
     private CustomUserDetailsService userService;
 
@@ -88,19 +95,14 @@ public class UserController {
 
     @PostMapping("/users/add")
     public String addUser(User user,BindingResult result,Model model, RedirectAttributes redirectAttributes) {
+        Feedback feedback = userService.createUser(user);
+        List<Map<String, String>> errors = feedback.getErrors();
 
-        User existingUser = null;
-
-        existingUser = userService.getUserByEmail(user.getEmail());
-        if(existingUser != null){
-            result.rejectValue("email", null,
-                    "There is already an account registered with the same email");
-        }
-
-        existingUser = userService.getUserByPhoneNumber(user.getPhoneNumber());
-        if(existingUser != null){
-            result.rejectValue("phoneNumber", null,
-                    "There is already an account registered with the same phone number");
+        for (Map<String, String> map : errors) {
+            for (Map.Entry<String, String> entry : map.entrySet()) {
+                result.rejectValue(entry.getKey(), null,
+                entry.getValue());
+            }
         }
 
         if(result.hasErrors()){
@@ -108,12 +110,6 @@ public class UserController {
             return "users/add_user";
         }
         
-        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-        String encodedPassword = passwordEncoder.encode(user.getPassword());
-        user.setPassword(encodedPassword);
-        
-        userRepo.save(user);
-
         redirectAttributes.addFlashAttribute("message", "Registration was successful");
         
         return "redirect:/users";
@@ -122,30 +118,20 @@ public class UserController {
     @PostMapping("/process_register")
     public String processRegister(User user,BindingResult result,Model model, RedirectAttributes redirectAttributes) {
 
-        User existingUser = null;
+        Feedback feedback = userService.createUser(user);
+        List<Map<String, String>> errors = feedback.getErrors();
 
-        existingUser = userService.getUserByEmail(user.getEmail());
-        if(existingUser != null){
-            result.rejectValue("email", null,
-                    "There is already an account registered with the same email");
-        }
-
-        existingUser = userService.getUserByPhoneNumber(user.getPhoneNumber());
-        if(existingUser != null){
-            result.rejectValue("phoneNumber", null,
-                    "There is already an account registered with the same phone number");
+        for (Map<String, String> map : errors) {
+            for (Map.Entry<String, String> entry : map.entrySet()) {
+                result.rejectValue(entry.getKey(), null,
+                entry.getValue());
+            }
         }
 
         if(result.hasErrors()){
             model.addAttribute("user", user);
             return "signup_form";
         }
-        
-        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-        String encodedPassword = passwordEncoder.encode(user.getPassword());
-        user.setPassword(encodedPassword);
-        
-        userRepo.save(user);
 
         redirectAttributes.addFlashAttribute("message", "Registration was successful");
         
@@ -203,6 +189,16 @@ public class UserController {
         .orElseThrow(() -> new IllegalArgumentException("Invalid user Id:" + id));
         userRepo.delete(user);
         return "redirect:/users";
+    }
+
+    @PostMapping("/{userId}/roles/{roleId}")
+    public ResponseEntity<String> assignRoleToUser(@PathVariable Long userId, @PathVariable Long roleId) {
+        String result = userService.assignRoleToUser(userId, roleId);
+        if (result.equals("Role assigned successfully.")) {
+            return ResponseEntity.ok(result);
+        } else {
+            return ResponseEntity.status(500).body(result);
+        }
     }
     
 }
