@@ -35,12 +35,16 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<UserRole> userRoles = new HashSet<>();
 
+
+    @Transient
+    private Long roleId;
+
     // Getters and setters
 
     public void addRole(Role role) {
         UserRole userRole = new UserRole(this, role);
         userRoles.add(userRole);
-        role.getUserRoles().add(userRole);
+        // role.getUserRoles().add(userRole);
     }
 
     public void removeRole(Role role) {
@@ -66,6 +70,12 @@ public class User {
     public String getEmail(){
         return email;
     }
+
+    public Long getRoleId(){
+        return roleId;
+    }
+
+
     public String getPhoneNumber(){
         return phoneNumber;
     }
@@ -87,6 +97,7 @@ public class User {
     public void setFirstName(String firstName){
         this.firstName = firstName;
     }
+
     public void setLastName(String lastName){
         this.lastName = lastName;
     }
@@ -102,6 +113,10 @@ public class User {
     }
     public void setId(long id) {
         this.id = id;
+    }
+
+    public void setRoleId(long id) {
+        this.roleId = id;
     }
 
     public void setCreatedAt(LocalDateTime createdAt) {

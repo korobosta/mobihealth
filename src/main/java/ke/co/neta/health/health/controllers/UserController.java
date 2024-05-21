@@ -1,6 +1,5 @@
 package ke.co.neta.health.health.controllers;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,10 +22,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 
 import ke.co.neta.health.health.controllers.auth.CustomUserDetailsService;
+import ke.co.neta.health.health.controllers.services.RoleService;
 import ke.co.neta.health.health.models.Feedback;
-import ke.co.neta.health.health.models.Role;
 import ke.co.neta.health.health.models.User;
-import ke.co.neta.health.health.repositories.RoleRepository;
 import ke.co.neta.health.health.repositories.UserRepository;
 
 @Controller
@@ -34,7 +32,9 @@ public class UserController {
 
     @Autowired
     private UserRepository userRepo;
-    private RoleRepository roleRepository;
+    
+    @Autowired
+    private RoleService roleService;
 
     private CustomUserDetailsService userService;
 
@@ -83,13 +83,14 @@ public class UserController {
     @GetMapping("/register")
     public String showRegistrationForm(Model model) {
         model.addAttribute("user", new User());
-        
-        return "signup_form";
+        model.addAttribute("roles", roleService.getRolesByRoleName("Citizen"));
+        return "users/register";
     }
 
     @GetMapping("/users/add")
     public String addUserForm(Model model) {
         model.addAttribute("user", new User());
+        model.addAttribute("roles", roleService.getAllRoles());
         return "users/add_user";
     }
 
@@ -107,6 +108,7 @@ public class UserController {
 
         if(result.hasErrors()){
             model.addAttribute("user", user);
+            
             return "users/add_user";
         }
         
@@ -130,12 +132,13 @@ public class UserController {
 
         if(result.hasErrors()){
             model.addAttribute("user", user);
-            return "signup_form";
+            model.addAttribute("roles", roleService.getRolesByRoleName("Citizen"));
+            return "users/register";
         }
 
         redirectAttributes.addFlashAttribute("message", "Registration was successful");
         
-        return "register_success";
+        return "redirect:/login";
     }
 
     @GetMapping("/users/edit/{id}")

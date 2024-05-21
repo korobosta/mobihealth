@@ -30,6 +30,8 @@ public class SpringSecurity {
                 .authorizeHttpRequests((authorize) ->
                         authorize
                         .requestMatchers("/login").permitAll()  // Allow access to the login page
+                        .requestMatchers("/register","/process_register").permitAll()  // Allow access to the register page
+                        .requestMatchers("/dist/**", "/plugins/**").permitAll() // Allow access to static files
                         .anyRequest().authenticated() 
                 ).formLogin(
                         form -> form

@@ -68,7 +68,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         if(existingUser != null){
             String error = "There is already an account registered with the same phone number";
             Map<String, String> emailMap = new HashMap<>();
-            emailMap.put("email", error);
+            emailMap.put("phoneNumber", error);
             errors.add(emailMap);
         }
 
@@ -81,6 +81,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
             try {
                 userRepo.save(user);
+                assignRoleToUser(user.getId(),user.getRoleId());
                 success = true;
             } catch (DataIntegrityViolationException e) {
                 // Handle database constraint violations
